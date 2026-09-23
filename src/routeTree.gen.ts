@@ -10,33 +10,53 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiPublicWaInvoiceRouteImport } from './routes/api/public/wa-invoice'
+import { Route as ApiPublicWaTestRouteImport } from './routes/api/public/wa-test'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicWaInvoiceRoute = ApiPublicWaInvoiceRouteImport.update({
+  id: '/api/public/wa-invoice',
+  path: '/api/public/wa-invoice',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicWaTestRoute = ApiPublicWaTestRouteImport.update({
+  id: '/api/public/wa-test',
+  path: '/api/public/wa-test',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/api/public/wa-invoice': typeof ApiPublicWaInvoiceRoute
+  '/api/public/wa-test': typeof ApiPublicWaTestRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/api/public/wa-invoice': typeof ApiPublicWaInvoiceRoute
+  '/api/public/wa-test': typeof ApiPublicWaTestRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/api/public/wa-invoice': typeof ApiPublicWaInvoiceRoute
+  '/api/public/wa-test': typeof ApiPublicWaTestRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/api/public/wa-invoice' | '/api/public/wa-test'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/api/public/wa-invoice' | '/api/public/wa-test'
+  id: '__root__' | '/' | '/api/public/wa-invoice' | '/api/public/wa-test'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ApiPublicWaInvoiceRoute: typeof ApiPublicWaInvoiceRoute
+  ApiPublicWaTestRoute: typeof ApiPublicWaTestRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +68,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/wa-invoice': {
+      id: '/api/public/wa-invoice'
+      path: '/api/public/wa-invoice'
+      fullPath: '/api/public/wa-invoice'
+      preLoaderRoute: typeof ApiPublicWaInvoiceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/wa-test': {
+      id: '/api/public/wa-test'
+      path: '/api/public/wa-test'
+      fullPath: '/api/public/wa-test'
+      preLoaderRoute: typeof ApiPublicWaTestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ApiPublicWaInvoiceRoute: ApiPublicWaInvoiceRoute,
+  ApiPublicWaTestRoute: ApiPublicWaTestRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
