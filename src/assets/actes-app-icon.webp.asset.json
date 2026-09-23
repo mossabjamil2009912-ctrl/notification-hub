@@ -1,11 +1,11 @@
 {
-  "asset_id": "fc70fec6-0eeb-446a-95fa-784f6fc244a0",
-  "content_type": "image/webp",
-  "created_at": "2026-09-22T20:36:45Z",
+  "version": 1,
+  "asset_id": "f31a888f-58a9-405a-85b8-dc748cd1337d",
+  "project_id": "9d35d535-dd3e-4471-92af-4effcc415abf",
+  "url": "/__l5e/assets-v1/f31a888f-58a9-405a-85b8-dc748cd1337d/actes-app-icon.webp",
+  "r2_key": "a/v1/9d35d535-dd3e-4471-92af-4effcc415abf/f31a888f-58a9-405a-85b8-dc748cd1337d/actes-app-icon.webp",
   "original_filename": "actes-app-icon.webp",
-  "project_id": "ed45afab-c7c1-4d25-88fc-b01664afacd7",
-  "r2_key": "a/v1/ed45afab-c7c1-4d25-88fc-b01664afacd7/fc70fec6-0eeb-446a-95fa-784f6fc244a0/actes-app-icon.webp",
   "size": 20334,
-  "url": "/__l5e/assets-v1/fc70fec6-0eeb-446a-95fa-784f6fc244a0/actes-app-icon.webp",
-  "version": 1
+  "content_type": "image/webp",
+  "created_at": "2026-09-23T15:02:22Z"
 }
