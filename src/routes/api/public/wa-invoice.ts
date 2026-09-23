@@ -141,7 +141,74 @@ async function handle(input: z.infer<typeof schema>) {
       .upsert({ id: clientNotif.id, payload: clientNotif as never, updated_at: new Date().toISOString() });
   }
 
-  return Response.json({ ok: true, action, orderId: next['id'], status });
+  // إشعار داخل التطبيق للإدارة بالقرار (يظهر في لوحة الإدارة من أي جهاز)
+  const adminNotif = {
+    id: uid("n"),
+    audience: "admin",
+    kind: action === "confirm" ? "purchase_confirmed" : "invoice_rejected",
+    orderId: next['id'],
+    title: `${action === "confirm" ? "تم تأكيد فاتورة" : "تم إلغاء فاتورة"} — ${next['quoteNumber'] || next['id']}`,
+    body:
+      action === "confirm"
+        ? "تم تأكيد الفاتورة عبر واتساب وإشعار العميل."
+        : "تم إلغاء الفاتورة عبر واتساب وطُلب من العميل إعادة إدخال رقم الحوالة.",
+    state: action === "confirm" ? "confirmed" : "cancelled",
+    createdAt: now,
+  };
+  await supabaseAdmin
+    .from("notifications")
+    .upsert({ id: adminNotif.id, payload: adminNotif as never, updated_at: new Date().toISOString() });
+
+  // إرسال رسائل واتساب: للعميل وللإدارة
+  const clientWa = normalizeWa(String(next['clientPhone'] ?? ""));
+  const messages = buildDecisionMessages({
+    action,
+    orderId: String(next['id']),
+    quoteNumber: String(next['quoteNumber'] ?? ""),
+    clientName: String(next['customer'] ?? ""),
+    clientPhone: clientWa,
+    transferRef: String(next['transferRef'] ?? ""),
+    total: Number(next['total']) || 0,
+  });
+
+  const [adminSend, clientSend] = await Promise.all([
+    sendToN8n({
+      kind: "invoice_decision_admin",
+      action,
+      to: ADMIN_WA,
+      adminPhone: ADMIN_WA,
+      text: messages.adminText,
+      orderId: String(next['id']),
+      quoteNumber: String(next['quoteNumber'] ?? ""),
+      clientName: String(next['customer'] ?? ""),
+      clientPhone: clientWa,
+      transferRef: String(next['transferRef'] ?? ""),
+      total: Number(next['total']) || 0,
+    }),
+    clientWa
+      ? sendToN8n({
+          kind: "invoice_decision_client",
+          action,
+          to: clientWa,
+          adminPhone: ADMIN_WA,
+          text: messages.clientText,
+          orderId: String(next['id']),
+          quoteNumber: String(next['quoteNumber'] ?? ""),
+          clientName: String(next['customer'] ?? ""),
+          clientPhone: clientWa,
+          transferRef: String(next['transferRef'] ?? ""),
+          total: Number(next['total']) || 0,
+        })
+      : Promise.resolve({ ok: false as const, error: "no_client_phone" }),
+  ]);
+
+  return Response.json({
+    ok: true,
+    action,
+    orderId: next['id'],
+    status,
+    whatsapp: { admin: adminSend.ok, client: clientSend.ok, error: adminSend.error ?? clientSend.error ?? null },
+  });
 }
 
 export const Route = createFileRoute("/api/public/wa-invoice")({
